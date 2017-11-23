@@ -2,6 +2,7 @@ module.exports = class Api {
   constructor(routes = {}) {
     this.routes = routes;
     this.queuePrefix = '';
+    this.nextHandler = () => null;
   }
 
   getRoutes() {
@@ -20,6 +21,11 @@ module.exports = class Api {
                 .then(() => {
                   return handler(data.data, data.route.options, {data}, meta);
                 })
+                .then((result) => {
+                  return Promise.resolve()
+                    .then(() => this.nextHandler(result, data, meta))
+                    .then(() => result)
+                })
             };
 
             return [theKey, theHandler];
@@ -36,6 +42,10 @@ module.exports = class Api {
 
   setQueuePrefix(prefix) {
     this.queuePrefix = prefix;
+  }
+
+  setNextHandler(handler) {
+    this.nextHandler = handler;
   }
 
 }

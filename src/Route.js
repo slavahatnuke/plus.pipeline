@@ -23,7 +23,9 @@ module.exports = class Route {
   }
 
   pipe(route) {
-
+    this.next.push(route.getId());
+    this.next = Array.from(new Set(this.next));
+    return route;
   }
 
   getOptions() {
@@ -41,5 +43,17 @@ module.exports = class Route {
       options: this.options,
       next: this.next
     }
+  }
+
+  setData(data) {
+    this.id = data.id;
+    this.route = data.route;
+
+    this.options = data.options;
+    this.next = data.next;
+  }
+
+  save() {
+    return this.routing.save(this);
   }
 }

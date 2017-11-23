@@ -11,11 +11,9 @@ const queue = Queue(redisClient);
 
 const api = Api({
   'add/x': (input, {x}) => {
-    // console.log(data);
     return input + x
   },
   'add/y': (input, {y}) => {
-    // console.log(data);
     return y + input
   }
 });
@@ -25,13 +23,24 @@ const routing = Routing(queue, RedisStorage(redisClient), api);
 Promise.all([
   routing.create('add/x', {x: 1}),
   routing.create('add/y', {y: 'Yaaaaay-'}),
+  routing.create('add/y', {y: '-Ammmm-'}),
 ])
-  .then(([route1, route2]) => {
-    // route1
-    //   .pipe(route2);
+  .then(([route1, route2, route3]) => {
 
-    route1.add(10);
-    route2.add(10);
+    route1
+      .pipe(route2)
+      .pipe(route3)
+    ;
+
+    return routing.save([route1, route2, route3])
+      // .then(() => Promise.all([route1, route2].map((route) => route.save())))
+      .then(() => {
+        route1.add(10);
+        // route1.add(20);
+        // route1.add(30);
+
+      });
+
   });
 
 
