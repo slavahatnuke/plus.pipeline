@@ -1,7 +1,3 @@
-# plus.pipeline
-
-## FlatApi
-```javascript
 const {Queue, Worker, FlatApi} = require('./index');
 
 const redis = require('redis');
@@ -32,11 +28,7 @@ const api = FlatApi({
 const worker = Worker(queue, api);
 worker.subscribe((result) => console.log(result));
 worker.start();
-
 // 11
 // 52
 // 21
 // 62
-
-
-```

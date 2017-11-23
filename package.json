@@ -31,6 +31,6 @@
     "redis": "^2.8.0"
   },
   "dependencies": {
-    "plus.queue": "^2.0.0"
+    "plus.queue": "^2.1.1"
   }
 }
