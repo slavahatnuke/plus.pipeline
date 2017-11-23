@@ -1,4 +1,4 @@
-const {Queue, Worker, FlatApi} = require('./index');
+const {Queue, Worker, Api, Routing, RedisStorage} = require('./index');
 
 const redis = require('redis');
 
@@ -8,27 +8,40 @@ const redisClient = redis.createClient({
 });
 
 const queue = Queue(redisClient);
-queue('add/1').add(10);
-queue('add/1').add(20);
 
-queue('add/2').add(50);
-queue('add/2').add(60);
-
-const api = FlatApi({
-  'add/1': (data) => {
+const api = Api({
+  'add/x': (input, {x}) => {
     // console.log(data);
-    return data + 1
+    return input + x
   },
-  'add/2': (data) => {
+  'add/y': (input, {y}) => {
     // console.log(data);
-    return data + 2;
-  },
+    return y + input
+  }
 });
 
-const worker = Worker(queue, api);
-worker.subscribe((result) => console.log(result));
+const routing = Routing(queue, RedisStorage(redisClient), api);
+
+Promise.all([
+  routing.create('add/x', {x: 1}),
+  routing.create('add/y', {y: 'Yaaaaay-'}),
+])
+  .then(([route1, route2]) => {
+    // route1
+    //   .pipe(route2);
+
+    route1.add(10);
+    route2.add(10);
+  });
+
+
+const worker = Worker(queue, api, {interval: 100});
+worker.subscribe((result) => {
+  console.log('OK', result)
+}, (error) => {
+  console.log('ERROR', error)
+});
+
 worker.start();
-// 11
-// 52
-// 21
-// 62
+// OK 11
+// OK Yaaaaay-10

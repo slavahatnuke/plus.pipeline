@@ -1,15 +1,13 @@
-const Pipeline = require('./src/Pipeline');
-const Node = require('./src/Node');
 
 const Worker = require('./src/Worker');
 const FlatApi = require('./src/FlatApi');
+const Api = require('./src/Api');
+const RedisStorage = require('./src/RedisStorage');
+const Routing = require('./src/Routing');
 
 const {QueueFactory} = require('plus.queue');
 
 module.exports = {
-  Pipeline: () => new Pipeline(),
-  Node: () => new Node(),
-
   FlatApi: (routes = {}) => new FlatApi(routes),
 
   Queue: (redis, options = {}) => {
@@ -21,5 +19,9 @@ module.exports = {
       return cache[name];
     }
   },
-  Worker: (queue, api, options = {}) => new Worker(queue, api, options)
+  Worker: (queue, api, options = {}) => new Worker(queue, api, options),
+
+  Api: (routes = {}) => new Api(routes),
+  RedisStorage: (redis, options = {}) => new RedisStorage(redis, options),
+  Routing: (queue, storage, api) => new Routing(queue, storage, api),
 };

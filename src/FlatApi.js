@@ -4,11 +4,14 @@ module.exports = class FlatApi {
   }
 
   getRoutes() {
-    const routes = Object.keys(this.routes)
-      .filter((key) => this.routes.hasOwnProperty(key))
-      .map((key) => [key, this.routes[key]])
-      .filter(([key, handler]) => handler instanceof Function);
+    return Promise.resolve()
+      .then(() => {
+        const routes = Object.keys(this.routes)
+          .filter((key) => this.routes.hasOwnProperty(key))
+          .map((key) => [key, this.routes[key]])
+          .filter(([key, handler]) => handler instanceof Function);
 
-    return routes
+        return routes
+      })
   }
 }
