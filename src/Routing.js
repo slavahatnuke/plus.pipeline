@@ -1,4 +1,4 @@
-const id = require('./id');
+const createId = require('./id');
 const Route = require('./Route');
 
 module.exports = class Routing {
@@ -14,6 +14,10 @@ module.exports = class Routing {
     this.api.setQueuePrefix(this.options.queue_prefix);
 
     this.api.setNextHandler((result, data, meta) => {
+      if (result === undefined) {
+        return Promise.resolve(undefined);
+      }
+
       let parents = [];
 
       if (data.route.history) {
@@ -39,10 +43,10 @@ module.exports = class Routing {
     });
   }
 
-  create(route, options = {}) {
+  create(route, options = {}, id = null) {
     return Promise.resolve()
       .then(() => this.api.hasRoute(route) || Promise.reject(new Error(`No route: ${route}`)))
-      .then(() => id())
+      .then(() => id || createId())
       .then((id) => this.save(new Route(id, route, options)))
   }
 
@@ -74,6 +78,16 @@ module.exports = class Routing {
         return this.storage.set(route.getId(), route.getData())
           .then(() => route)
       })
+  }
+
+  remove(id) {
+    if (Array.isArray(id)) {
+      return Promise.all(id.map((id) => this.remove(id)));
+    }
+
+    return Promise.resolve()
+      .then(() => id instanceof Route ? id.getId() : id)
+      .then((id) => this.storage.del(id))
   }
 
   routeAddToQueue(route, data, parents = []) {

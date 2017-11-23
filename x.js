@@ -10,12 +10,15 @@ const redisClient = redis.createClient({
 const queue = Queue(redisClient);
 
 const api = Api({
-  'add/x': (input, {x}, {refs}) => {
-    console.log('>>> 1', refs)
+  'add/x': (input, {x}, {refs, publish}) => {
+    // console.log('>>> 1', refs)
+    // publish('AAA')
+    // publish('BBB')
+    // publish('CCC')
     return input + x
   },
   'add/y': (input, {y}, {refs}) => {
-    console.log('>>> 2', refs)
+    // console.log('>>> 2', refs)
 
     // console.log('>>>>>', data)
     // console.log('>>>>> refs', data.refs)
@@ -26,9 +29,9 @@ const api = Api({
 const routing = Routing(queue, RedisStorage(redisClient), api);
 
 Promise.all([
-  routing.create('add/x', {x: 1}),
-  routing.create('add/y', {y: 'Yaaaaay-'}),
-  routing.create('add/y', {y: '-arrr-'}),
+  routing.create('add/x', {x: 1}, 'add/one'),
+  routing.create('add/y', {y: 'Yaaaaay-'}, 'add/yay'),
+  routing.create('add/y', {y: '-arrr-'}, 'add/arr'),
 ])
   .then(([route1, route2, route3]) => {
 
@@ -36,7 +39,7 @@ Promise.all([
       .pipe(route2)
       .pipe(route3);
 
-    route2.keepHistory(false);
+    // route2.keepHistory(false);
 
     return routing.save([route1, route2, route3])
     // .then(() => Promise.all([route1, route2].map((route) => route.save())))
@@ -45,6 +48,7 @@ Promise.all([
       });
 
   });
+
 
 
 const worker = Worker(queue, api, {interval: 100});
@@ -56,6 +60,10 @@ worker.subscribe((result) => {
 
 worker.start();
 
-setTimeout(() => worker.stop().then(() => process.exit(0)), 3e3)
+setTimeout(() =>{
+  // routing.remove(['add/one', 'add/arr']);
+
+  worker.stop().then(() => process.exit(0))
+} , 3e3)
 // OK 11
 // OK Yaaaaay-10

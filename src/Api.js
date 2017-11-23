@@ -33,6 +33,11 @@ module.exports = class Api {
                     enumerable: true
                   });
 
+                  Object.defineProperty(context, 'publish', {
+                    get: () => (result) => this.nextHandler(result, data, meta),
+                    enumerable: true
+                  });
+
                   return handler(data.data, data.route.options, context, meta);
                 })
                 .then((result) => {
