@@ -23,10 +23,27 @@ module.exports = class Route {
     this.routing = routing;
   }
 
-  pipe(route) {
-    this.next.push(route.getId());
-    this.next = Array.from(new Set(this.next));
-    return route;
+  pipe(route = null) {
+    if (route instanceof Route) {
+      this.next.push(route.getId());
+      this.next = Array.from(new Set(this.next));
+      return route;
+    } else if (route === null) {
+      this.next = []
+    } else {
+      throw Error('Unsupported route to pipe');
+    }
+  }
+
+  unpipe(route = null) {
+    if (route instanceof Route) {
+      this.next = this.next.filter((id) => route.getId() !== id);
+      return route;
+    } else if (route === null) {
+      this.next = [];
+    } else {
+      throw Error('Unsupported route to unpipe');
+    }
   }
 
   getOptions() {
