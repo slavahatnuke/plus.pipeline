@@ -1,0 +1,32 @@
+{
+  "name": "plus.pipeline",
+  "version": "0.0.1",
+  "description": "plus.pipeline",
+  "main": "index.js",
+  "bin": {
+    "plus-pipeline": "bin/plus-pipeline.js"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slavahatnuke/plus.pipeline.git"
+  },
+  "keywords": [
+    "plus",
+    "plus-pipeline"
+  ],
+  "author": "slava hatnuke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slavahatnuke/plus.pipeline/issues"
+  },
+  "homepage": "https://github.com/slavahatnuke/plus.pipeline#readme",
+  "devDependencies": {
+    "mocha": "^3.2.0"
+  }
+}
