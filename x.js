@@ -10,10 +10,15 @@ const redisClient = redis.createClient({
 const queue = Queue(redisClient);
 
 const api = Api({
-  'add/x': (input, {x}) => {
+  'add/x': (input, {x}, {refs}) => {
+    console.log('>>> 1', refs)
     return input + x
   },
-  'add/y': (input, {y}) => {
+  'add/y': (input, {y}, {refs}) => {
+    console.log('>>> 2', refs)
+
+    // console.log('>>>>>', data)
+    // console.log('>>>>> refs', data.refs)
     return y + input
   }
 });
@@ -23,22 +28,20 @@ const routing = Routing(queue, RedisStorage(redisClient), api);
 Promise.all([
   routing.create('add/x', {x: 1}),
   routing.create('add/y', {y: 'Yaaaaay-'}),
-  routing.create('add/y', {y: '-Ammmm-'}),
+  routing.create('add/y', {y: '-arrr-'}),
 ])
   .then(([route1, route2, route3]) => {
 
     route1
       .pipe(route2)
-      .pipe(route3)
-    ;
+      .pipe(route3);
+
+    route2.keepHistory(false);
 
     return routing.save([route1, route2, route3])
-      // .then(() => Promise.all([route1, route2].map((route) => route.save())))
+    // .then(() => Promise.all([route1, route2].map((route) => route.save())))
       .then(() => {
         route1.add(10);
-        // route1.add(20);
-        // route1.add(30);
-
       });
 
   });
@@ -52,5 +55,7 @@ worker.subscribe((result) => {
 });
 
 worker.start();
+
+setTimeout(() => worker.stop().then(() => process.exit(0)), 3e3)
 // OK 11
 // OK Yaaaaay-10

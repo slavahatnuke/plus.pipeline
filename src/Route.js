@@ -1,21 +1,22 @@
 module.exports = class Route {
   constructor(id, route, options) {
-    this.id = id;
+    this.id = id || null;
 
-    this.route = route;
+    this.route = route || null;
     this.options = options instanceof Object ? options : {};
 
     this.next = [];
 
     this.routing = null;
+    this.history = true;
   }
 
   getId() {
     return this.id;
   }
 
-  add(data) {
-    return this.routing.routeAddToQueue(this, data);
+  add(data, parents = []) {
+    return this.routing.routeAddToQueue(this, data, parents);
   }
 
   setRouting(routing) {
@@ -41,6 +42,7 @@ module.exports = class Route {
       id: this.id,
       route: this.route,
       options: this.options,
+      history: this.history,
       next: this.next
     }
   }
@@ -51,9 +53,14 @@ module.exports = class Route {
 
     this.options = data.options;
     this.next = data.next;
+    this.history = data.history;
   }
 
   save() {
     return this.routing.save(this);
+  }
+
+  keepHistory(keep = true) {
+    this.history = !!keep;
   }
 }

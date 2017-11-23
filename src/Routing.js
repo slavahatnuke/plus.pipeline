@@ -14,10 +14,26 @@ module.exports = class Routing {
     this.api.setQueuePrefix(this.options.queue_prefix);
 
     this.api.setNextHandler((result, data, meta) => {
+      let parents = [];
+
+      if (data.route.history) {
+        const parent = {
+          id: meta.job.getId(),
+          input: data.data,
+          output: result,
+          route: data.route.id,
+          options: data.route.options,
+          api: data.route.route,
+        };
+
+        parents = Array.from(data.parents);
+        parents.push(parent);
+      }
+
       return this.get(data.route.next)
         .then((routes) => {
           return Promise.all(routes.map((route) => {
-            return route.add(result)
+            return route.add(result, parents);
           }))
         });
     });
@@ -60,10 +76,14 @@ module.exports = class Routing {
       })
   }
 
-  routeAddToQueue(route, data) {
+  routeAddToQueue(route, data, parents = []) {
     return Promise.resolve()
       .then(() => this.queue(`${this.options.queue_prefix}${route.getRoute()}`))
-      .then((aQueue) => aQueue.add({data, route: route.getData()}))
+      .then((aQueue) => aQueue.add({
+        data,
+        route: route.getData(),
+        parents
+      }))
   }
 
 
